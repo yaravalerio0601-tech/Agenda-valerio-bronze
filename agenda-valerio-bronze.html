@@ -1,0 +1,3237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Valério Bronze — Agenda</title>
+<meta name="theme-color" content="#1C1410" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+  if (window.emailjs) {
+    emailjs.init({ publicKey: "tvqdlWs3pQNdGtgf9" });
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get as dbGet, set as dbSet } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQZek_eIfSOKDFEMOjiNFMVoomyHrdWNU",
+    authDomain: "valeriobronze-76fa5.firebaseapp.com",
+    databaseURL: "https://valeriobronze-76fa5-default-rtdb.firebaseio.com",
+    projectId: "valeriobronze-76fa5",
+    storageBucket: "valeriobronze-76fa5.firebasestorage.app",
+    messagingSenderId: "916335725948",
+    appId: "1:916335725948:web:56650feed212d0b45d28f9"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getDatabase(fbApp);
+  const auth = getAuth(fbApp);
+
+  function safeKey(key) {
+    return String(key).replace(/[.#$\[\]/]/g, "_");
+  }
+
+  window.storage = {
+    async get(key) {
+      const snap = await dbGet(ref(db, safeKey(key)));
+      if (!snap.exists()) return null;
+      return { key, value: snap.val(), shared: true };
+    },
+    async set(key, value) {
+      await dbSet(ref(db, safeKey(key)), value);
+      return { key, value, shared: true };
+    },
+  };
+
+  signInAnonymously(auth).catch((err) => {
+    console.error("Falha na autenticação anônima do Firebase:", err);
+    document.getElementById("root").innerHTML =
+      '<div style="padding:40px 20px;color:#F5E9DC;background:#1C1410;min-height:100vh;font-family:sans-serif;text-align:center">Não foi possível conectar ao banco de dados. Verifique a conexão com a internet e recarregue a página.</div>';
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.dispatchEvent(new Event("firebase-ready"));
+    }
+  });
+</script>
+
+<script>
+const {
+  useState,
+  useEffect,
+  useCallback
+} = React;
+function Icon({
+  size = 24,
+  color = "currentColor",
+  style,
+  children
+}) {
+  return React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: color,
+    strokeWidth: 2,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    style
+  }, children);
+}
+const P = d => React.createElement("path", {
+  d
+});
+const L = (x1, y1, x2, y2) => React.createElement("line", {
+  x1,
+  y1,
+  x2,
+  y2
+});
+const C = (cx, cy, r) => React.createElement("circle", {
+  cx,
+  cy,
+  r
+});
+const R = (x, y, w, h, rx) => React.createElement("rect", {
+  x,
+  y,
+  width: w,
+  height: h,
+  rx
+});
+function Calendar(props) {
+  return Icon({
+    ...props,
+    children: [R(3, 4, 18, 18, 2), L(16, 2, 16, 6), L(8, 2, 8, 6), L(3, 10, 21, 10)]
+  });
+}
+function Clock(props) {
+  return Icon({
+    ...props,
+    children: [C(12, 12, 10), P("M12 6v6l4 2")]
+  });
+}
+function User(props) {
+  return Icon({
+    ...props,
+    children: [P("M20 21a8 8 0 0 0-16 0"), C(12, 7, 4)]
+  });
+}
+function CreditCard(props) {
+  return Icon({
+    ...props,
+    children: [R(2, 5, 20, 14, 2), L(2, 10, 22, 10)]
+  });
+}
+function Lock(props) {
+  return Icon({
+    ...props,
+    children: [R(4, 11, 16, 10, 2), P("M8 11V7a4 4 0 0 1 8 0v4")]
+  });
+}
+function Plus(props) {
+  return Icon({
+    ...props,
+    children: [L(12, 5, 12, 19), L(5, 12, 19, 12)]
+  });
+}
+function Trash2(props) {
+  return Icon({
+    ...props,
+    children: [P("M4 7h16"), P("M6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7"), P("M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"), L(10, 11, 10, 17), L(14, 11, 14, 17)]
+  });
+}
+function ChevronLeft(props) {
+  return Icon({
+    ...props,
+    children: [P("M15 18l-6-6 6-6")]
+  });
+}
+function ChevronRight(props) {
+  return Icon({
+    ...props,
+    children: [P("M9 18l6-6-6-6")]
+  });
+}
+function Check(props) {
+  return Icon({
+    ...props,
+    children: [P("M20 6L9 17l-5-5")]
+  });
+}
+function X(props) {
+  return Icon({
+    ...props,
+    children: [L(18, 6, 6, 18), L(6, 6, 18, 18)]
+  });
+}
+function Settings(props) {
+  return Icon({
+    ...props,
+    children: [C(12, 12, 3), P("M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z")]
+  });
+}
+function TrendingUp(props) {
+  return Icon({
+    ...props,
+    children: [P("M23 6l-9.5 9.5-5-5L1 18"), P("M17 6h6v6")]
+  });
+}
+function TrendingDown(props) {
+  return Icon({
+    ...props,
+    children: [P("M23 18l-9.5-9.5-5 5L1 6"), P("M17 18h6v-6")]
+  });
+}
+function Wallet(props) {
+  return Icon({
+    ...props,
+    children: [P("M20 12V8H6a2 2 0 0 1 0-4h12v4"), P("M4 6v12a2 2 0 0 0 2 2h14v-4"), C(16, 14, 1.2)]
+  });
+}
+function Ban(props) {
+  return Icon({
+    ...props,
+    children: [C(12, 12, 10), L(4.9, 4.9, 19.1, 19.1)]
+  });
+}
+function Unlock(props) {
+  return Icon({
+    ...props,
+    children: [R(4, 11, 16, 10, 2), P("M8 11V7a4 4 0 0 1 7.6-1.8")]
+  });
+}
+function Search(props) {
+  return Icon({
+    ...props,
+    children: [C(11, 11, 7), L(21, 21, 16.6, 16.6)]
+  });
+}
+function Sun(props) {
+  return Icon({
+    ...props,
+    children: [C(12, 12, 4), L(12, 2, 12, 4), L(12, 20, 12, 22), L(4.9, 4.9, 6.3, 6.3), L(17.7, 17.7, 19.1, 19.1), L(2, 12, 4, 12), L(20, 12, 22, 12), L(4.9, 19.1, 6.3, 17.7), L(17.7, 6.3, 19.1, 4.9)]
+  });
+}
+function ClipboardList(props) {
+  return Icon({
+    ...props,
+    children: [R(6, 4, 12, 18, 2), R(9, 2, 6, 4, 1), L(9, 10, 15, 10), L(9, 14, 15, 14), L(9, 18, 13, 18)]
+  });
+}
+function ShieldCheck(props) {
+  return Icon({
+    ...props,
+    children: [P("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"), P("M9 12l2 2 4-4")]
+  });
+}
+function MessageCircle(props) {
+  return Icon({
+    ...props,
+    children: [P("M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z")]
+  });
+}
+function Cake(props) {
+  return Icon({
+    ...props,
+    children: [P("M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"), P("M4 16h16"), P("M12 8V4"), P("M9 4h6"), C(12, 4, 0.6), R(2, 21, 20, 1, 0)]
+  });
+}
+const STORAGE_KEY = "bronze-agenda-data";
+const ADMIN_PIN = "1975Valerio@!";
+const PAYMENTS = ["Pix", "Dinheiro", "Cartão"];
+const DEFAULT_DATA = {
+  bookings: [],
+  expenses: [],
+  blocked: [],
+  settings: {
+    depositPct: 30,
+    startHour: 8,
+    endHour: 17,
+    sundayEndHour: 11,
+    services: [{
+      id: "modelo",
+      name: "Bronze Modelo",
+      price: 80,
+      cost: 0
+    }, {
+      id: "normal",
+      name: "Bronze Normal",
+      price: 150,
+      cost: 0
+    }]
+  }
+};
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function fmtDateLabel(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const weekday = date.toLocaleDateString("pt-BR", {
+    weekday: "short"
+  });
+  return {
+    weekday: weekday.replace(".", ""),
+    day: d,
+    month: date.toLocaleDateString("pt-BR", {
+      month: "short"
+    }).replace(".", "")
+  };
+}
+function fmtDateFull(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long"
+  });
+}
+function money(n) {
+  return (n || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+function hoursList(start, end) {
+  const arr = [];
+  for (let h = start; h <= end; h++) arr.push(`${String(h).padStart(2, "0")}:00`);
+  return arr;
+}
+
+// Sunday has a shorter day (ends earlier) than the rest of the week
+function endHourFor(iso, settings) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const weekday = new Date(y, m - 1, d).getDay(); // 0 = Sunday
+  return weekday === 0 ? settings.sundayEndHour : settings.endHour;
+}
+function hoursForDate(iso, settings) {
+  return hoursList(settings.startHour, endHourFor(iso, settings));
+}
+
+// gradient tint per hour, evoking the sun's arc from morning to late afternoon
+function hourTint(h, start, end) {
+  const t = (h - start) / Math.max(1, end - start);
+  const from = [232, 184, 109]; // light gold, dawn
+  const to = [181, 114, 58]; // deep bronze, dusk
+  const c = from.map((v, i) => Math.round(v + (to[i] - v) * t));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function App() {
+  const [tab, setTab] = useState("cliente");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await window.storage.get(STORAGE_KEY, true);
+        if (res && res.value) {
+          const parsed = JSON.parse(res.value);
+          setData({
+            ...DEFAULT_DATA,
+            ...parsed,
+            settings: {
+              ...DEFAULT_DATA.settings,
+              ...(parsed.settings || {})
+            }
+          });
+        } else {
+          setData(DEFAULT_DATA);
+          await window.storage.set(STORAGE_KEY, JSON.stringify(DEFAULT_DATA), true);
+        }
+      } catch (e) {
+        setData(DEFAULT_DATA);
+      }
+      setLoading(false);
+    })();
+  }, []);
+  const persist = useCallback(async next => {
+    setData(next);
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(next), true);
+    } catch (e) {
+      console.error("Falha ao salvar", e);
+    }
+  }, []);
+  if (loading || !data) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: styles.page
+    }, /*#__PURE__*/React.createElement(FontImport, null), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...styles.centerFull,
+        color: COLORS.cream
+      }
+    }, "Carregando agenda…"));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: styles.page
+  }, /*#__PURE__*/React.createElement(FontImport, null), /*#__PURE__*/React.createElement("header", {
+    style: styles.header
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.brandRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.sunMark
+  }, /*#__PURE__*/React.createElement(Sun, {
+    size: 18,
+    color: COLORS.bg
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: styles.brandName
+  }, "Valério Bronze"), /*#__PURE__*/React.createElement("div", {
+    style: styles.brandSub
+  }, "agenda de bronzeamento")))), /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, tab === "cliente" ? /*#__PURE__*/React.createElement(ClientView, {
+    data: data,
+    persist: persist
+  }) : adminUnlocked ? /*#__PURE__*/React.createElement(AdminView, {
+    data: data,
+    persist: persist,
+    onLock: () => setAdminUnlocked(false)
+  }) : /*#__PURE__*/React.createElement(AdminGate, {
+    onUnlock: () => setAdminUnlocked(true)
+  })), /*#__PURE__*/React.createElement("nav", {
+    style: styles.bottomNav
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.bottomNavInner
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTab("cliente"),
+    style: {
+      ...styles.navBtn,
+      ...(tab === "cliente" ? styles.navBtnActive : {})
+    }
+  }, /*#__PURE__*/React.createElement(Calendar, {
+    size: 20
+  }), /*#__PURE__*/React.createElement("span", {
+    style: styles.navLabel
+  }, "Agendar")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTab("admin"),
+    style: {
+      ...styles.navBtn,
+      ...(tab === "admin" ? styles.navBtnActive : {})
+    }
+  }, /*#__PURE__*/React.createElement(Lock, {
+    size: 20
+  }), /*#__PURE__*/React.createElement("span", {
+    style: styles.navLabel
+  }, "Admin")))));
+}
+const COLORS = {
+  bg: "#1C1410",
+  bgElevated: "#241A14",
+  bgCard: "#2C2019",
+  border: "#3B2C21",
+  bronze: "#B5723A",
+  bronzeSoft: "#8C5A31",
+  gold: "#E8B86D",
+  cream: "#F5E9DC",
+  muted: "#A68A72",
+  danger: "#B8443B",
+  success: "#7A9868"
+};
+function FontImport() {
+  return /*#__PURE__*/React.createElement("style", null, `
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+      * { box-sizing: border-box; }
+      html, body { margin: 0; overflow-x: hidden; width: 100%; max-width: 100%; }
+      ::selection { background: ${COLORS.bronze}; color: ${COLORS.bg}; }
+      button { font-family: inherit; cursor: pointer; }
+      input, select { font-family: inherit; }
+      .slot-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+      .slot-btn:disabled { cursor: not-allowed; }
+      .chip:hover { filter: brightness(1.1); }
+      .card-row:hover { background: #33261D; }
+      @media (max-width: 560px) {
+        .hide-mobile { display: none !important; }
+      }
+    `);
+}
+const styles = {
+  page: {
+    minHeight: "100dvh",
+    width: "100%",
+    maxWidth: "100vw",
+    overflowX: "hidden",
+    background: `radial-gradient(900px 500px at 50% -10%, #2A1D14 0%, ${COLORS.bg} 55%)`,
+    fontFamily: "'Inter', sans-serif",
+    color: COLORS.cream,
+    display: "flex",
+    flexDirection: "column"
+  },
+  centerFull: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100dvh"
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    padding: "16px 18px",
+    borderBottom: `1px solid ${COLORS.border}`,
+    position: "sticky",
+    top: 0,
+    background: "rgba(28,20,16,0.92)",
+    backdropFilter: "blur(6px)",
+    zIndex: 10
+  },
+  brandRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    maxWidth: 480,
+    margin: "0 auto",
+    width: "100%"
+  },
+  sunMark: {
+    width: 32,
+    height: 32,
+    borderRadius: "50%",
+    background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.bronze})`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  },
+  brandName: {
+    fontFamily: "'Fraunces', serif",
+    fontWeight: 600,
+    fontSize: 17,
+    letterSpacing: 0.2,
+    lineHeight: 1.15
+  },
+  brandSub: {
+    fontSize: 11.5,
+    color: COLORS.muted,
+    letterSpacing: 0.4
+  },
+  main: {
+    maxWidth: 480,
+    width: "100%",
+    margin: "0 auto",
+    padding: "16px 14px",
+    flex: 1,
+    paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))"
+  },
+  bottomNav: {
+    position: "sticky",
+    bottom: 0,
+    background: "rgba(28,20,16,0.96)",
+    backdropFilter: "blur(10px)",
+    borderTop: `1px solid ${COLORS.border}`,
+    paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    zIndex: 20
+  },
+  bottomNavInner: {
+    maxWidth: 480,
+    margin: "0 auto",
+    display: "flex",
+    padding: "6px 10px"
+  },
+  navBtn: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 3,
+    border: "none",
+    background: "transparent",
+    color: COLORS.muted,
+    padding: "8px 4px 6px",
+    borderRadius: 12,
+    fontSize: 11,
+    fontWeight: 600,
+    minHeight: 52
+  },
+  navBtnActive: {
+    color: COLORS.gold
+  },
+  navLabel: {
+    fontSize: 11
+  }
+};
+
+/* ---------------------------- CLIENT VIEW ---------------------------- */
+
+function ClientView({
+  data,
+  persist
+}) {
+  const {
+    settings
+  } = data;
+  const [selectedDate, setSelectedDate] = useState(toISODate(new Date()));
+  const [selectedService, setSelectedService] = useState(settings.services[0]?.id || null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [payment, setPayment] = useState(PAYMENTS[0]);
+  const [confirmed, setConfirmed] = useState(null);
+  const [lookupPhone, setLookupPhone] = useState("");
+  const [showLookup, setShowLookup] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const service = settings.services.find(s => s.id === selectedService) || settings.services[0];
+  const hours = hoursForDate(selectedDate, settings);
+  const today = toISODate(new Date());
+  const now = new Date();
+  const days = Array.from({
+    length: 5
+  }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return toISODate(d);
+  });
+  function isPast(iso, time) {
+    if (iso > today) return false;
+    if (iso < today) return true;
+    const [h] = time.split(":").map(Number);
+    return h <= now.getHours();
+  }
+  function isTaken(iso, time) {
+    return data.bookings.some(b => b.date === iso && b.time === time && b.status !== "cancelado");
+  }
+  function isBlocked(iso, time) {
+    return data.blocked.some(b => b.date === iso && b.time === time);
+  }
+  async function handleConfirm() {
+    setAttemptedSubmit(true);
+    if (!selectedTime || !firstName.trim() || !lastName.trim() || !phone.trim() || !service) return;
+    const price = service.price;
+    const deposit = Math.round(price * (settings.depositPct / 100) * 100) / 100;
+    const booking = {
+      id: uid(),
+      date: selectedDate,
+      time: selectedTime,
+      name: `${firstName.trim()} ${lastName.trim()}`,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      birthDate: birthDate || null,
+      phone: phone.trim(),
+      payment,
+      serviceName: service.name,
+      price,
+      deposit,
+      status: "agendado",
+      source: "cliente",
+      notified: {
+        confirmacao: false,
+        vespera: false,
+        tresHoras: false
+      },
+      createdAt: new Date().toISOString()
+    };
+    const next = {
+      ...data,
+      bookings: [...data.bookings, booking]
+    };
+    await persist(next);
+    notifyAdminByEmail(booking);
+    setConfirmed(booking);
+  }
+  if (confirmed) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "grid",
+        gap: 16
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...card,
+        textAlign: "center",
+        padding: "32px 20px"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 52,
+        height: 52,
+        borderRadius: "50%",
+        margin: "0 auto 14px",
+        background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.bronze})`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(Check, {
+      size: 26,
+      color: COLORS.bg
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "'Fraunces', serif",
+        fontSize: 21,
+        fontWeight: 600,
+        marginBottom: 4
+      }
+    }, "Agendamento reservado"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: COLORS.muted,
+        fontSize: 13.5,
+        marginBottom: 18
+      }
+    }, fmtDateFull(confirmed.date), " às ", confirmed.time), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "grid",
+        gap: 8,
+        textAlign: "left",
+        fontSize: 14
+      }
+    }, /*#__PURE__*/React.createElement(Row, {
+      label: "Cliente",
+      value: confirmed.name
+    }), /*#__PURE__*/React.createElement(Row, {
+      label: "Modelo",
+      value: confirmed.serviceName
+    }), /*#__PURE__*/React.createElement(Row, {
+      label: "Valor da sessão",
+      value: money(confirmed.price)
+    }), /*#__PURE__*/React.createElement(Row, {
+      label: "Sinal (30%)",
+      value: money(confirmed.deposit),
+      highlight: true
+    }), /*#__PURE__*/React.createElement(Row, {
+      label: "Forma de pagamento",
+      value: confirmed.payment
+    }))), /*#__PURE__*/React.createElement(PolicyNotice, null), /*#__PURE__*/React.createElement("button", {
+      style: {
+        ...btnPrimary,
+        width: "100%"
+      },
+      onClick: () => {
+        setConfirmed(null);
+        setSelectedTime(null);
+        setFirstName("");
+        setLastName("");
+        setBirthDate("");
+        setPhone("");
+        setAttemptedSubmit(false);
+      }
+    }, "Fazer novo agendamento"));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 18
+    }
+  }, /*#__PURE__*/React.createElement(PolicyNotice, null), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Calendar, {
+      size: 15
+    })
+  }, "Escolha o dia"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(5, 1fr)",
+      gap: 6
+    }
+  }, days.map(iso => {
+    const lbl = fmtDateLabel(iso);
+    const active = iso === selectedDate && !showDatePicker;
+    return /*#__PURE__*/React.createElement("button", {
+      key: iso,
+      className: "chip",
+      onClick: () => {
+        setSelectedDate(iso);
+        setSelectedTime(null);
+        setShowDatePicker(false);
+      },
+      style: {
+        minWidth: 0,
+        borderRadius: 12,
+        padding: "8px 2px",
+        border: `1px solid ${active ? COLORS.bronze : COLORS.border}`,
+        background: active ? COLORS.bronze : "transparent",
+        color: active ? COLORS.bg : COLORS.cream,
+        textAlign: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        opacity: 0.85,
+        textTransform: "uppercase"
+      }
+    }, lbl.weekday), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 16,
+        fontWeight: 700
+      }
+    }, lbl.day), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        opacity: 0.85
+      }
+    }, lbl.month));
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowDatePicker(v => !v),
+    style: {
+      ...btnGhost,
+      width: "100%",
+      marginTop: 8,
+      fontSize: 12.5,
+      padding: "8px 10px"
+    }
+  }, showDatePicker ? "Fechar calendário" : "Escolher outra data"), showDatePicker && /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: selectedDate,
+    min: today,
+    onChange: e => {
+      setSelectedDate(e.target.value);
+      setSelectedTime(null);
+    },
+    style: {
+      ...input,
+      marginTop: 8
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Sun, {
+      size: 15
+    })
+  }, "Escolha o modelo"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, settings.services.map(s => {
+    const active = s.id === selectedService;
+    return /*#__PURE__*/React.createElement("button", {
+      key: s.id,
+      onClick: () => setSelectedService(s.id),
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "12px 14px",
+        borderRadius: 11,
+        border: `1.5px solid ${active ? COLORS.gold : COLORS.border}`,
+        background: active ? COLORS.bronze : "transparent",
+        color: active ? COLORS.bg : COLORS.cream,
+        textAlign: "left",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 14,
+        fontWeight: 700,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        minWidth: 0
+      }
+    }, s.name), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "'JetBrains Mono', monospace",
+        fontWeight: 700,
+        fontSize: 14.5,
+        flexShrink: 0
+      }
+    }, money(s.price)));
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Clock, {
+      size: 15
+    })
+  }, "Horários — ", fmtDateFull(selectedDate)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))",
+      gap: 8
+    }
+  }, hours.map(h => {
+    const hourNum = Number(h.split(":")[0]);
+    const disabled = isPast(selectedDate, h) || isTaken(selectedDate, h) || isBlocked(selectedDate, h);
+    const active = selectedTime === h;
+    const tint = hourTint(hourNum, settings.startHour, endHourFor(selectedDate, settings));
+    return /*#__PURE__*/React.createElement("button", {
+      key: h,
+      className: "slot-btn",
+      disabled: disabled,
+      onClick: () => setSelectedTime(h),
+      style: {
+        padding: "10px 4px",
+        borderRadius: 10,
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 13.5,
+        fontWeight: 600,
+        border: `1.5px solid ${active ? COLORS.gold : disabled ? COLORS.border : tint}`,
+        background: disabled ? "#22180F" : active ? tint : "transparent",
+        color: disabled ? "#5C4A3A" : active ? COLORS.bg : COLORS.cream,
+        transition: "transform .12s ease",
+        textDecoration: disabled ? "line-through" : "none"
+      }
+    }, h);
+  }))), selectedTime && /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(User, {
+      size: 15
+    })
+  }, "Seus dados"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    placeholder: "Nome",
+    value: firstName,
+    onChange: e => setFirstName(e.target.value),
+    style: {
+      ...input,
+      flex: 1,
+      ...(attemptedSubmit && !firstName.trim() ? errorInput : {})
+    }
+  }), /*#__PURE__*/React.createElement("input", {
+    placeholder: "Sobrenome",
+    value: lastName,
+    onChange: e => setLastName(e.target.value),
+    style: {
+      ...input,
+      flex: 1,
+      ...(attemptedSubmit && !lastName.trim() ? errorInput : {})
+    }
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Data de nascimento"), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: birthDate,
+    onChange: e => setBirthDate(e.target.value),
+    style: input
+  })), /*#__PURE__*/React.createElement("input", {
+    placeholder: "WhatsApp (com DDD)",
+    value: phone,
+    onChange: e => setPhone(e.target.value),
+    style: {
+      ...input,
+      ...(attemptedSubmit && !phone.trim() ? errorInput : {})
+    }
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Forma de pagamento do sinal"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, PAYMENTS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p,
+    onClick: () => setPayment(p),
+    style: {
+      flex: 1,
+      padding: "9px 6px",
+      borderRadius: 9,
+      fontSize: 13,
+      fontWeight: 600,
+      border: `1.5px solid ${payment === p ? COLORS.bronze : COLORS.border}`,
+      background: payment === p ? COLORS.bronze : "transparent",
+      color: payment === p ? COLORS.bg : COLORS.cream
+    }
+  }, p)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "12px 14px",
+      borderRadius: 10,
+      background: COLORS.bgElevated,
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: COLORS.muted
+    }
+  }, "Sinal a pagar agora (", settings.depositPct, "%)"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'JetBrains Mono', monospace",
+      fontWeight: 700,
+      color: COLORS.gold,
+      fontSize: 16
+    }
+  }, money((service?.price || 0) * settings.depositPct / 100))), /*#__PURE__*/React.createElement("button", {
+    style: btnPrimary,
+    onClick: handleConfirm
+  }, "Confirmar agendamento"), attemptedSubmit && (!firstName.trim() || !lastName.trim() || !phone.trim()) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.danger,
+      textAlign: "center",
+      marginTop: -2
+    }
+  }, "Preencha nome, sobrenome e WhatsApp para confirmar."))), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowLookup(v => !v),
+    style: {
+      ...btnGhost,
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(Search, {
+    size: 14
+  }), " Ver meus agendamentos"), showLookup && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12,
+      display: "grid",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    placeholder: "Digite seu WhatsApp",
+    value: lookupPhone,
+    onChange: e => setLookupPhone(e.target.value),
+    style: input
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, data.bookings.filter(b => lookupPhone && b.phone.replace(/\D/g, "").includes(lookupPhone.replace(/\D/g, ""))).sort((a, b) => a.date + a.time > b.date + b.time ? -1 : 1).map(b => /*#__PURE__*/React.createElement(BookingRow, {
+    key: b.id,
+    b: b
+  })), lookupPhone && data.bookings.filter(b => b.phone.replace(/\D/g, "").includes(lookupPhone.replace(/\D/g, ""))).length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13
+    }
+  }, "Nenhum agendamento encontrado para esse número.")))));
+}
+function BookingRow({
+  b,
+  right
+}) {
+  const statusColor = b.status === "concluido" ? COLORS.success : b.status === "cancelado" ? COLORS.danger : COLORS.gold;
+  const statusLabel = b.status === "concluido" ? "Concluído" : b.status === "cancelado" ? "Cancelado" : "Agendado";
+  return /*#__PURE__*/React.createElement("div", {
+    className: "card-row",
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 12px",
+      borderRadius: 10,
+      border: `1px solid ${COLORS.border}`,
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      fontWeight: 600
+    }
+  }, b.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.muted,
+      fontFamily: "'JetBrains Mono', monospace"
+    }
+  }, fmtDateFull(b.date), " · ", b.time, b.serviceName ? ` · ${b.serviceName}` : "")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700
+    }
+  }, money(b.price)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: statusColor,
+      fontWeight: 600
+    }
+  }, statusLabel)), right);
+}
+function PolicyNotice() {
+  const message = "Olá! Gostaria de saber se tem possibilidade de encaixe em algum horário.";
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      background: `linear-gradient(160deg, ${COLORS.bgCard}, ${COLORS.bgElevated})`,
+      border: `1px solid ${COLORS.bronzeSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "flex-start",
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement(MessageCircle, {
+    size: 18,
+    color: COLORS.gold,
+    style: {
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      lineHeight: 1.55,
+      color: COLORS.cream
+    }
+  }, "Caso queira algum horário que não tenha disponível, envie mensagem no WhatsApp pra ver se tem possibilidade de encaixe.")), /*#__PURE__*/React.createElement("a", {
+    href: whatsappLink("+5527999350733", message),
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      ...btnPrimary,
+      width: "100%",
+      textDecoration: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(MessageCircle, {
+    size: 15
+  }), "Chamar no WhatsApp"));
+}
+function Row({
+  label,
+  value,
+  highlight
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.muted
+    }
+  }, label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 700,
+      color: highlight ? COLORS.gold : COLORS.cream
+    }
+  }, value));
+}
+function SectionTitle({
+  icon,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      marginBottom: 12,
+      color: COLORS.gold,
+      fontWeight: 600,
+      fontSize: 13.5,
+      textTransform: "uppercase",
+      letterSpacing: 0.5
+    }
+  }, icon, children);
+}
+
+/* ---------------------------- ADMIN GATE ---------------------------- */
+
+function AdminGate({
+  onUnlock
+}) {
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      maxWidth: 320,
+      margin: "40px auto",
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement(Lock, {
+    size: 22,
+    color: COLORS.gold,
+    style: {
+      marginBottom: 10
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 18,
+      marginBottom: 12
+    }
+  }, "Área administrativa"), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: pin,
+    onChange: e => {
+      setPin(e.target.value);
+      setError(false);
+    },
+    placeholder: "Senha",
+    style: {
+      ...input,
+      textAlign: "center"
+    },
+    onKeyDown: e => e.key === "Enter" && (pin === ADMIN_PIN ? onUnlock() : setError(true))
+  }), error && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.danger,
+      fontSize: 12.5,
+      marginTop: 8
+    }
+  }, "Senha incorreta"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...btnPrimary,
+      width: "100%",
+      marginTop: 12
+    },
+    onClick: () => pin === ADMIN_PIN ? onUnlock() : setError(true)
+  }, "Entrar"));
+}
+
+/* ---------------------------- ADMIN VIEW ---------------------------- */
+
+function AdminView({
+  data,
+  persist,
+  onLock
+}) {
+  const [section, setSection] = useState("agenda");
+  const sections = [{
+    id: "agenda",
+    label: "Agenda",
+    icon: /*#__PURE__*/React.createElement(Calendar, {
+      size: 14
+    })
+  }, {
+    id: "mensagens",
+    label: "Mensagens",
+    icon: /*#__PURE__*/React.createElement(MessageCircle, {
+      size: 14
+    })
+  }, {
+    id: "historico",
+    label: "Histórico",
+    icon: /*#__PURE__*/React.createElement(ClipboardList, {
+      size: 14
+    })
+  }, {
+    id: "faturamento",
+    label: "Faturamento",
+    icon: /*#__PURE__*/React.createElement(TrendingUp, {
+      size: 14
+    })
+  }, {
+    id: "gastos",
+    label: "Gastos",
+    icon: /*#__PURE__*/React.createElement(TrendingDown, {
+      size: 14
+    })
+  }, {
+    id: "config",
+    label: "Config",
+    icon: /*#__PURE__*/React.createElement(Settings, {
+      size: 14
+    })
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      overflowX: "auto",
+      paddingBottom: 2
+    }
+  }, sections.map(s => /*#__PURE__*/React.createElement("button", {
+    key: s.id,
+    onClick: () => setSection(s.id),
+    style: {
+      flexShrink: 0,
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "8px 12px",
+      borderRadius: 9,
+      fontSize: 12.5,
+      fontWeight: 600,
+      border: `1px solid ${section === s.id ? COLORS.bronze : COLORS.border}`,
+      background: section === s.id ? COLORS.bronze : "transparent",
+      color: section === s.id ? COLORS.bg : COLORS.muted
+    }
+  }, s.icon, s.label)), /*#__PURE__*/React.createElement("button", {
+    onClick: onLock,
+    style: {
+      ...btnGhost,
+      marginLeft: "auto",
+      flexShrink: 0,
+      padding: "8px 12px"
+    }
+  }, /*#__PURE__*/React.createElement(Lock, {
+    size: 13,
+    style: {
+      marginRight: 5,
+      verticalAlign: -2
+    }
+  }), "Sair")), section === "agenda" && /*#__PURE__*/React.createElement(AdminAgenda, {
+    data: data,
+    persist: persist
+  }), section === "mensagens" && /*#__PURE__*/React.createElement(AdminMensagens, {
+    data: data,
+    persist: persist
+  }), section === "historico" && /*#__PURE__*/React.createElement(AdminHistorico, {
+    data: data,
+    persist: persist
+  }), section === "faturamento" && /*#__PURE__*/React.createElement(AdminFaturamento, {
+    data: data
+  }), section === "gastos" && /*#__PURE__*/React.createElement(AdminGastos, {
+    data: data,
+    persist: persist
+  }), section === "config" && /*#__PURE__*/React.createElement(AdminConfig, {
+    data: data,
+    persist: persist
+  }));
+}
+function AdminAgenda({
+  data,
+  persist
+}) {
+  const {
+    settings
+  } = data;
+  const [selectedDate, setSelectedDate] = useState(toISODate(new Date()));
+  const [manualOpen, setManualOpen] = useState(false); // whether the booking form is open
+  const [editingId, setEditingId] = useState(null);
+  const [mDate, setMDate] = useState(selectedDate);
+  const [mTime, setMTime] = useState("");
+  const [mName, setMName] = useState("");
+  const [mPhone, setMPhone] = useState("");
+  const [mPayment, setMPayment] = useState(PAYMENTS[0]);
+  const [mService, setMService] = useState(data.settings.services[0]?.id || null);
+  const [conflictError, setConflictError] = useState("");
+  const [concludingId, setConcludingId] = useState(null);
+  const [mPaymentRemaining, setMPaymentRemaining] = useState("");
+  const [mDeposit, setMDeposit] = useState("0");
+  const [mEncaixe, setMEncaixe] = useState(false);
+  const [customTime, setCustomTime] = useState("07:00");
+  const baseHours = hoursForDate(selectedDate, settings);
+  const extraTimes = Array.from(new Set(data.bookings.filter(b => b.date === selectedDate && b.status !== "cancelado" && !baseHours.includes(b.time)).map(b => b.time)));
+  const hours = [...baseHours, ...extraTimes].sort();
+  const mBaseHours = hoursForDate(mDate, settings);
+  const mExtraTimes = Array.from(new Set(data.bookings.filter(b => b.date === mDate && b.status !== "cancelado" && !mBaseHours.includes(b.time)).map(b => b.time)));
+  if (mTime && !mBaseHours.includes(mTime) && !mExtraTimes.includes(mTime)) mExtraTimes.push(mTime);
+  const mHours = [...mBaseHours, ...mExtraTimes].sort();
+  const mSelectedService = settings.services.find(s => s.id === mService);
+  const mPrice = mSelectedService?.price || 0;
+  const mDepositNum = parseFloat(mDeposit) || 0;
+  const mRemaining = Math.max(0, mPrice - mDepositNum);
+  function bookingsAt(iso, time) {
+    return data.bookings.filter(b => b.date === iso && b.time === time && b.status !== "cancelado");
+  }
+  function blockedAt(iso, time) {
+    return data.blocked.some(b => b.date === iso && b.time === time);
+  }
+  async function toggleBlock(time) {
+    const exists = blockedAt(selectedDate, time);
+    const next = exists ? {
+      ...data,
+      blocked: data.blocked.filter(b => !(b.date === selectedDate && b.time === time))
+    } : {
+      ...data,
+      blocked: [...data.blocked, {
+        date: selectedDate,
+        time
+      }]
+    };
+    await persist(next);
+  }
+  function openNewSlot(h) {
+    setEditingId(null);
+    setMDate(selectedDate);
+    setMTime(h);
+    setMName("");
+    setMPhone("");
+    setMPayment(PAYMENTS[0]);
+    const firstService = settings.services[0];
+    setMService(firstService?.id || null);
+    const suggestedDeposit = firstService ? Math.round(firstService.price * (settings.depositPct / 100) * 100) / 100 : 0;
+    setMDeposit(String(suggestedDeposit));
+    setMPaymentRemaining("");
+    setMEncaixe(false);
+    setConflictError("");
+    setManualOpen(true);
+  }
+  function openEncaixeSlot(h) {
+    openNewSlot(h);
+    setMEncaixe(true);
+  }
+  function startEdit(b) {
+    setEditingId(b.id);
+    setMDate(b.date);
+    setMTime(b.time);
+    setMName(b.name || "");
+    setMPhone(b.phone || "");
+    setMPayment(b.payment || PAYMENTS[0]);
+    setMPaymentRemaining(b.paymentRemaining || "");
+    setMDeposit(String(b.deposit ?? 0));
+    setMEncaixe(!!b.encaixe);
+    const svc = settings.services.find(s => s.name === b.serviceName);
+    setMService(svc ? svc.id : settings.services[0]?.id || null);
+    setConflictError("");
+    setManualOpen(true);
+  }
+  function closeForm() {
+    setManualOpen(false);
+    setEditingId(null);
+    setConflictError("");
+    setMPaymentRemaining("");
+    setMEncaixe(false);
+  }
+  async function saveBooking() {
+    if (!mName.trim() || !mTime) return;
+    const conflict = !mEncaixe && data.bookings.find(b => b.date === mDate && b.time === mTime && b.status !== "cancelado" && b.id !== editingId);
+    if (conflict) {
+      setConflictError(`Já existe um agendamento (${conflict.name}) nesse dia e horário. Marque "Encaixe" se quiser mesmo assim.`);
+      return;
+    }
+    const service = settings.services.find(s => s.id === mService) || settings.services[0];
+    const price = service?.price || 0;
+    const deposit = Math.min(Math.max(parseFloat(mDeposit) || 0, 0), price);
+    if (editingId) {
+      const next = {
+        ...data,
+        bookings: data.bookings.map(b => b.id === editingId ? {
+          ...b,
+          date: mDate,
+          time: mTime,
+          name: mName.trim(),
+          phone: mPhone.trim(),
+          payment: mPayment,
+          paymentRemaining: mPaymentRemaining || b.paymentRemaining,
+          serviceName: service?.name || "",
+          price,
+          deposit,
+          encaixe: mEncaixe || b.encaixe || false
+        } : b)
+      };
+      await persist(next);
+    } else {
+      const booking = {
+        id: uid(),
+        date: mDate,
+        time: mTime,
+        name: mName.trim(),
+        phone: mPhone.trim(),
+        payment: mPayment,
+        serviceName: service?.name || "",
+        price,
+        deposit,
+        encaixe: mEncaixe,
+        status: "agendado",
+        source: "admin",
+        createdAt: new Date().toISOString()
+      };
+      await persist({
+        ...data,
+        bookings: [...data.bookings, booking]
+      });
+    }
+    closeForm();
+  }
+  async function setStatus(id, status) {
+    const next = {
+      ...data,
+      bookings: data.bookings.map(b => b.id === id ? {
+        ...b,
+        status
+      } : b)
+    };
+    await persist(next);
+  }
+  async function concludeWithPayment(id, paymentRemaining) {
+    const next = {
+      ...data,
+      bookings: data.bookings.map(b => b.id === id ? {
+        ...b,
+        status: "concluido",
+        paymentRemaining
+      } : b)
+    };
+    await persist(next);
+    setConcludingId(null);
+  }
+  async function removeBooking(id) {
+    await persist({
+      ...data,
+      bookings: data.bookings.filter(b => b.id !== id)
+    });
+  }
+  function shiftDate(delta) {
+    const [y, m, d] = selectedDate.split("-").map(Number);
+    const dt = new Date(y, m - 1, d + delta);
+    setSelectedDate(toISODate(dt));
+  }
+  const dayBookings = data.bookings.filter(b => b.date === selectedDate && b.status !== "cancelado").sort((a, b) => a.time > b.time ? 1 : -1);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => shiftDate(-1),
+    style: iconBtn
+  }, /*#__PURE__*/React.createElement(ChevronLeft, {
+    size: 16
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 16,
+      fontWeight: 600,
+      textTransform: "capitalize"
+    }
+  }, fmtDateFull(selectedDate)), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: selectedDate,
+    onChange: e => setSelectedDate(e.target.value),
+    style: {
+      ...input,
+      marginTop: 6,
+      padding: "4px 8px",
+      fontSize: 12
+    }
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => shiftDate(1),
+    style: iconBtn
+  }, /*#__PURE__*/React.createElement(ChevronRight, {
+    size: 16
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      border: `1px solid ${COLORS.bronzeSoft}`
+    }
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    })
+  }, "Agendar em horário especial"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 10
+    }
+  }, "Pra exceções fora dos horários normais (tipo 7h, quando você abrir uma brecha)."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "time",
+    value: customTime,
+    onChange: e => setCustomTime(e.target.value),
+    style: {
+      ...input,
+      flex: 1
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    style: btnPrimarySm,
+    onClick: () => openNewSlot(customTime)
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 12,
+    style: {
+      marginRight: 4,
+      verticalAlign: -2
+    }
+  }), "Agendar"))), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Clock, {
+      size: 15
+    })
+  }, "Horários do dia"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, hours.map(h => {
+    const bookingsHere = bookingsAt(selectedDate, h);
+    const blocked = blockedAt(selectedDate, h);
+    const isException = !baseHours.includes(h);
+    return /*#__PURE__*/React.createElement("div", {
+      key: h,
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        padding: "9px 10px",
+        borderRadius: 10,
+        border: `1px solid ${isException ? COLORS.gold : COLORS.border}`,
+        background: bookingsHere.length > 0 ? "#2E2013" : blocked ? "#241414" : "transparent"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "'JetBrains Mono', monospace",
+        fontWeight: 700,
+        width: 48,
+        flexShrink: 0,
+        color: isException ? COLORS.gold : COLORS.cream
+      }
+    }, h), isException && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        color: COLORS.gold,
+        fontWeight: 700,
+        textTransform: "uppercase"
+      }
+    }, "especial"), bookingsHere.length === 0 && (blocked ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontSize: 12.5,
+        color: COLORS.muted
+      }
+    }, "Bloqueado"), /*#__PURE__*/React.createElement("button", {
+      style: {
+        ...btnGhost,
+        padding: "6px 10px",
+        fontSize: 12
+      },
+      onClick: () => toggleBlock(h)
+    }, /*#__PURE__*/React.createElement(Unlock, {
+      size: 12,
+      style: {
+        marginRight: 5,
+        verticalAlign: -2
+      }
+    }), "Liberar")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontSize: 12.5,
+        color: COLORS.muted
+      }
+    }, "Disponível"), /*#__PURE__*/React.createElement("button", {
+      style: {
+        ...btnGhost,
+        padding: "6px 10px",
+        fontSize: 12
+      },
+      onClick: () => toggleBlock(h)
+    }, /*#__PURE__*/React.createElement(Ban, {
+      size: 12,
+      style: {
+        marginRight: 5,
+        verticalAlign: -2
+      }
+    }), "Bloquear"), /*#__PURE__*/React.createElement("button", {
+      style: {
+        ...btnPrimarySm
+      },
+      onClick: () => openNewSlot(h)
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 12,
+      style: {
+        marginRight: 4,
+        verticalAlign: -2
+      }
+    }), "Agendar"))), bookingsHere.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontSize: 11,
+        color: COLORS.gold,
+        fontWeight: 700
+      }
+    }, bookingsHere.length > 1 ? `${bookingsHere.length} clientes nesse horário (encaixe)` : "")), bookingsHere.map(booking => /*#__PURE__*/React.createElement("div", {
+      key: booking.id,
+      style: {
+        borderTop: `1px solid ${COLORS.border}`,
+        paddingTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13.5,
+        fontWeight: 600
+      }
+    }, booking.name, booking.encaixe && /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: COLORS.gold,
+        fontSize: 11,
+        fontWeight: 700
+      }
+    }, " · encaixe")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: COLORS.muted
+      }
+    }, booking.serviceName ? `${booking.serviceName} · ` : "", booking.phone || "sem telefone", " · sinal: ", booking.payment, booking.status === "concluido" && booking.paymentRemaining && ` · restante: ${booking.paymentRemaining}`, " · ", money(booking.price), booking.source === "admin" && " · manual")), /*#__PURE__*/React.createElement(StatusPill, {
+      status: booking.status
+    }), booking.status === "agendado" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+      title: "Concluir",
+      style: iconBtnSm,
+      onClick: () => setConcludingId(concludingId === booking.id ? null : booking.id)
+    }, /*#__PURE__*/React.createElement(Check, {
+      size: 14,
+      color: COLORS.success
+    })), /*#__PURE__*/React.createElement("button", {
+      title: "Cancelar",
+      style: iconBtnSm,
+      onClick: () => setStatus(booking.id, "cancelado")
+    }, /*#__PURE__*/React.createElement(X, {
+      size: 14,
+      color: COLORS.danger
+    }))), /*#__PURE__*/React.createElement("button", {
+      title: "Editar",
+      style: iconBtnSm,
+      onClick: () => startEdit(booking)
+    }, /*#__PURE__*/React.createElement(Settings, {
+      size: 14,
+      color: COLORS.gold
+    })), /*#__PURE__*/React.createElement("button", {
+      title: "Excluir",
+      style: iconBtnSm,
+      onClick: () => removeBooking(booking.id)
+    }, /*#__PURE__*/React.createElement(Trash2, {
+      size: 14,
+      color: COLORS.muted
+    }))), concludingId === booking.id && /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "8px 10px",
+        background: COLORS.bgElevated,
+        borderRadius: 8,
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: COLORS.muted,
+        marginBottom: 6
+      }
+    }, "Como ela pagou o restante (", money(booking.price - (booking.deposit || 0)), ")?"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap"
+      }
+    }, PAYMENTS.map(p => /*#__PURE__*/React.createElement("button", {
+      key: p,
+      onClick: () => concludeWithPayment(booking.id, p),
+      style: {
+        padding: "6px 12px",
+        borderRadius: 8,
+        fontSize: 12,
+        fontWeight: 600,
+        border: `1px solid ${COLORS.gold}`,
+        background: "transparent",
+        color: COLORS.gold
+      }
+    }, p)))), booking.status === "agendado" && booking.phone && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap",
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      style: msgBtnStyle,
+      onClick: () => window.open(whatsappLink(booking.phone, msgConfirmacao(booking)), "_blank")
+    }, /*#__PURE__*/React.createElement(MessageCircle, {
+      size: 11,
+      style: {
+        marginRight: 4,
+        verticalAlign: -1
+      }
+    }), "Confirmação"), /*#__PURE__*/React.createElement("button", {
+      style: msgBtnStyle,
+      onClick: () => window.open(whatsappLink(booking.phone, msgVespera(booking)), "_blank")
+    }, /*#__PURE__*/React.createElement(MessageCircle, {
+      size: 11,
+      style: {
+        marginRight: 4,
+        verticalAlign: -1
+      }
+    }), "Véspera"), /*#__PURE__*/React.createElement("button", {
+      style: msgBtnStyle,
+      onClick: () => window.open(whatsappLink(booking.phone, msgTresHoras(booking)), "_blank")
+    }, /*#__PURE__*/React.createElement(MessageCircle, {
+      size: 11,
+      style: {
+        marginRight: 4,
+        verticalAlign: -1
+      }
+    }), "3h antes")))), bookingsHere.length > 0 && !blocked && /*#__PURE__*/React.createElement("button", {
+      style: {
+        ...btnGhost,
+        fontSize: 12,
+        padding: "6px 10px"
+      },
+      onClick: () => openEncaixeSlot(h)
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 12,
+      style: {
+        marginRight: 5,
+        verticalAlign: -2
+      }
+    }), "Adicionar encaixe nesse horário"));
+  }))), manualOpen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      border: `1px solid ${COLORS.gold}`
+    }
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: editingId ? /*#__PURE__*/React.createElement(Settings, {
+      size: 15
+    }) : /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    })
+  }, editingId ? "Editar agendamento" : `Agendar manualmente — ${mTime}`), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, editingId && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: mDate,
+    onChange: e => {
+      setMDate(e.target.value);
+      setConflictError("");
+    },
+    style: {
+      ...input,
+      flex: 1
+    }
+  }), /*#__PURE__*/React.createElement("select", {
+    value: mTime,
+    onChange: e => {
+      setMTime(e.target.value);
+      setConflictError("");
+    },
+    style: {
+      ...input,
+      flex: 1
+    }
+  }, mHours.map(h => {
+    const taken = data.bookings.some(b => b.date === mDate && b.time === h && b.status !== "cancelado" && b.id !== editingId);
+    return /*#__PURE__*/React.createElement("option", {
+      key: h,
+      value: h,
+      disabled: taken
+    }, h, taken ? " (ocupado)" : "");
+  }))), /*#__PURE__*/React.createElement("input", {
+    placeholder: "Nome do cliente",
+    value: mName,
+    onChange: e => setMName(e.target.value),
+    style: input
+  }), /*#__PURE__*/React.createElement("input", {
+    placeholder: "Telefone (opcional)",
+    value: mPhone,
+    onChange: e => setMPhone(e.target.value),
+    style: input
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, settings.services.map(s => /*#__PURE__*/React.createElement("button", {
+    key: s.id,
+    onClick: () => {
+      setMService(s.id);
+      if (!editingId) {
+        const suggested = Math.round(s.price * (settings.depositPct / 100) * 100) / 100;
+        setMDeposit(String(suggested));
+      }
+    },
+    style: {
+      flex: 1,
+      padding: "8px 6px",
+      borderRadius: 9,
+      fontSize: 12.5,
+      fontWeight: 600,
+      border: `1.5px solid ${mService === s.id ? COLORS.gold : COLORS.border}`,
+      background: mService === s.id ? COLORS.bronze : "transparent",
+      color: mService === s.id ? COLORS.bg : COLORS.cream
+    }
+  }, s.name, " · ", money(s.price)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Valor do sinal (R$)"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: mDeposit,
+    onChange: e => setMDeposit(e.target.value),
+    style: input,
+    placeholder: "0 se não pagou sinal"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Restante"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...input,
+      display: "flex",
+      alignItems: "center",
+      color: COLORS.gold,
+      fontWeight: 700
+    }
+  }, money(mRemaining)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Forma de pagamento do sinal"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, PAYMENTS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p,
+    onClick: () => setMPayment(p),
+    style: {
+      flex: 1,
+      padding: "8px 6px",
+      borderRadius: 9,
+      fontSize: 12.5,
+      fontWeight: 600,
+      border: `1.5px solid ${mPayment === p ? COLORS.bronze : COLORS.border}`,
+      background: mPayment === p ? COLORS.bronze : "transparent",
+      color: mPayment === p ? COLORS.bg : COLORS.cream
+    }
+  }, p)))), editingId && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 6
+    }
+  }, "Forma de pagamento do restante (opcional)"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, PAYMENTS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p,
+    onClick: () => setMPaymentRemaining(mPaymentRemaining === p ? "" : p),
+    style: {
+      flex: 1,
+      padding: "8px 6px",
+      borderRadius: 9,
+      fontSize: 12.5,
+      fontWeight: 600,
+      border: `1.5px solid ${mPaymentRemaining === p ? COLORS.gold : COLORS.border}`,
+      background: mPaymentRemaining === p ? COLORS.bronzeSoft : "transparent",
+      color: COLORS.cream
+    }
+  }, p)))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMEncaixe(v => !v),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "9px 12px",
+      borderRadius: 9,
+      border: `1.5px solid ${mEncaixe ? COLORS.gold : COLORS.border}`,
+      background: mEncaixe ? COLORS.bronzeSoft : "transparent"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 18,
+      height: 18,
+      borderRadius: 5,
+      flexShrink: 0,
+      border: `1.5px solid ${mEncaixe ? COLORS.gold : COLORS.muted}`,
+      background: mEncaixe ? COLORS.gold : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, mEncaixe && /*#__PURE__*/React.createElement(Check, {
+    size: 12,
+    color: COLORS.bg
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.cream,
+      textAlign: "left"
+    }
+  }, "Encaixe — permitir mesmo já tendo outra cliente nesse horário")), conflictError && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.danger,
+      fontSize: 12.5
+    }
+  }, conflictError), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...btnGhost,
+      flex: 1
+    },
+    onClick: closeForm
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...btnPrimary,
+      flex: 1
+    },
+    onClick: saveBooking
+  }, editingId ? "Salvar alterações" : "Salvar")))), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(ClipboardList, {
+      size: 15
+    })
+  }, "Resumo do dia (", dayBookings.length, ")"), dayBookings.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13
+    }
+  }, "Nenhum agendamento para este dia.") : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, dayBookings.map(b => /*#__PURE__*/React.createElement(BookingRow, {
+    key: b.id,
+    b: b
+  })))));
+}
+function StatusPill({
+  status
+}) {
+  const map = {
+    agendado: {
+      color: COLORS.gold,
+      label: "Agendado"
+    },
+    concluido: {
+      color: COLORS.success,
+      label: "Concluído"
+    },
+    cancelado: {
+      color: COLORS.danger,
+      label: "Cancelado"
+    }
+  };
+  const s = map[status] || map.agendado;
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10.5,
+      fontWeight: 700,
+      color: s.color,
+      border: `1px solid ${s.color}`,
+      borderRadius: 20,
+      padding: "2px 8px",
+      flexShrink: 0
+    }
+  }, s.label);
+}
+function notifyAdminByEmail(booking) {
+  try {
+    if (typeof window !== "undefined" && window.emailjs) {
+      window.emailjs.send("service_xwpo87g", "template_bj6r5po", {
+        nome: booking.name,
+        telefone: booking.phone || "não informado",
+        modelo: booking.serviceName,
+        data: fmtDateFull(booking.date),
+        horario: booking.time,
+        valor: money(booking.price)
+      });
+    }
+  } catch (e) {
+    console.error("Falha ao notificar por e-mail", e);
+  }
+}
+function whatsappLink(phone, message) {
+  let digits = (phone || "").replace(/\D/g, "");
+  if (digits.length <= 11) digits = "55" + digits; // assume Brazil if no country code
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+function bookingDateTime(iso, time) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const [h, min] = time.split(":").map(Number);
+  return new Date(y, m - 1, d, h, min);
+}
+function msgConfirmacao(b) {
+  return `Olá, ${b.firstName || b.name}!
+
+Seu agendamento em Valério Bronze foi confirmado com sucesso!
+
+Data e Hora: ${fmtDateFull(b.date)} às ${b.time}
+Serviço: ${b.serviceName}
+
+
+*O QUE DEVO LEVAR?*
+• Protetor solar facial
+• Toalha de banho
+
+*RECOMENDAÇÕES PRÉ BRONZE*
+•É estritamente proibido realizar o procedimento em jejum.
+• Estar com a pele limpa, sem desodorantes, protetor solar corporal, hidratantes ou óleos corporais.
+• Evitar o consumo de bebidas alcóolicas no dia anterior
+• Estar com os pêlos da virilha levemente aparados
+• Aumentar a ingestão de água antes, durante e depois da sessão
+• Vir com roupa escura e folgada
+
+
+*ENDEREÇO*
+Rua B Dois,  n°4 - Portal Clube (casa duplex azul)
+Segunda rua a direita na entrada do Portal Clube
+
+*LOCALIZAÇÃO*  https://g.co/kgs/q2H4PH6
+
+*PROIBIDO ACOMPANHANTES E CRIANÇAS*
+
+Se precisar cancelar ou reagendar, entre em contato conosco!
+
+Atenciosamente Valério Bronze`;
+}
+function msgVespera(b) {
+  return `Oi ${b.firstName || b.name}! Passando pra lembrar do seu bronzeamento amanhã, ${fmtDateFull(b.date)} às ${b.time}. Qualquer imprevisto, nos avise com antecedência. Até lá! ☀️`;
+}
+function msgTresHoras(b) {
+  return `Oi ${b.firstName || b.name}! Faltam poucas horas pro seu bronzeamento hoje às ${b.time}. Nos vemos em breve! ☀️`;
+}
+function msgFeedback(b) {
+  return `Olá, ${b.firstName || b.name}!
+
+Esperamos que você tenha tido uma ótima experiência conosco! Nos conte o que achou 😍
+
+Agradecemos sua preferência!
+
+Atenciosamente, Valério Bronze`;
+}
+function AdminMensagens({
+  data,
+  persist
+}) {
+  const now = new Date();
+  const active = data.bookings.filter(b => b.status === "agendado");
+  const byDateTime = (a, b) => a.date + a.time < b.date + b.time ? -1 : 1;
+  const pendConfirmacao = active.filter(b => !b.notified?.confirmacao).sort((a, b) => a.createdAt < b.createdAt ? 1 : -1);
+  const pendVespera = active.filter(b => !b.notified?.vespera).sort(byDateTime);
+  const pend3h = active.filter(b => !b.notified?.tresHoras).sort(byDateTime);
+  const pendFeedback = data.bookings.filter(b => b.status === "concluido" && !b.notified?.feedback).sort((a, b) => a.date + a.time < b.date + b.time ? 1 : -1);
+  const aniversariantes = data.bookings.filter(b => b.birthDate).reduce((acc, b) => {
+    if (!acc.some(x => x.phone === b.phone)) acc.push(b);
+    return acc;
+  }, []).map(b => {
+    const [, m, d] = b.birthDate.split("-").map(Number);
+    let next = new Date(now.getFullYear(), m - 1, d);
+    if (next < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+      next = new Date(now.getFullYear() + 1, m - 1, d);
+    }
+    const daysUntil = Math.round((next - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
+    return {
+      ...b,
+      daysUntil
+    };
+  }).filter(b => b.daysUntil <= 30).sort((a, b) => a.daysUntil - b.daysUntil);
+  async function markNotified(id, key) {
+    const next = {
+      ...data,
+      bookings: data.bookings.map(b => b.id === id ? {
+        ...b,
+        notified: {
+          ...b.notified,
+          [key]: true
+        }
+      } : b)
+    };
+    await persist(next);
+  }
+  function openWhatsApp(b, key, message) {
+    window.open(whatsappLink(b.phone, message), "_blank");
+    markNotified(b.id, key);
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      background: `linear-gradient(160deg, ${COLORS.bgCard}, ${COLORS.bgElevated})`,
+      border: `1px solid ${COLORS.bronzeSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement(MessageCircle, {
+    size: 17,
+    color: COLORS.gold,
+    style: {
+      flexShrink: 0,
+      marginTop: 1
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      lineHeight: 1.5,
+      color: COLORS.cream
+    }
+  }, "O app não consegue enviar mensagens sozinho — não existe um servidor rodando por trás pra disparar isso automaticamente. O que dá pra fazer aqui é deixar tudo pronto: todo agendamento ativo aparece nas 3 listas abaixo (confirmação, véspera e 3h antes), com o texto já escrito. É só tocar em \"Enviar\" no momento certo."))), /*#__PURE__*/React.createElement(MessageGroup, {
+    title: "Confirmação",
+    icon: /*#__PURE__*/React.createElement(Check, {
+      size: 15
+    }),
+    items: pendConfirmacao,
+    emptyLabel: "Nenhum agendamento ativo.",
+    buildMessage: msgConfirmacao,
+    onSend: b => openWhatsApp(b, "confirmacao", msgConfirmacao(b)),
+    onMarkSent: b => markNotified(b.id, "confirmacao")
+  }), /*#__PURE__*/React.createElement(MessageGroup, {
+    title: "Lembrete de véspera",
+    icon: /*#__PURE__*/React.createElement(Clock, {
+      size: 15
+    }),
+    items: pendVespera,
+    emptyLabel: "Nenhum agendamento ativo.",
+    buildMessage: msgVespera,
+    onSend: b => openWhatsApp(b, "vespera", msgVespera(b)),
+    onMarkSent: b => markNotified(b.id, "vespera")
+  }), /*#__PURE__*/React.createElement(MessageGroup, {
+    title: "Lembrete de 3h antes",
+    icon: /*#__PURE__*/React.createElement(Clock, {
+      size: 15
+    }),
+    items: pend3h,
+    emptyLabel: "Nenhum agendamento ativo.",
+    buildMessage: msgTresHoras,
+    onSend: b => openWhatsApp(b, "tresHoras", msgTresHoras(b)),
+    onMarkSent: b => markNotified(b.id, "tresHoras"),
+    showDeadline: true
+  }), /*#__PURE__*/React.createElement(MessageGroup, {
+    title: "Pedir feedback (pós-atendimento)",
+    icon: /*#__PURE__*/React.createElement(MessageCircle, {
+      size: 15
+    }),
+    items: pendFeedback,
+    emptyLabel: "Nenhum atendimento concluído aguardando pedido de feedback.",
+    buildMessage: msgFeedback,
+    onSend: b => openWhatsApp(b, "feedback", msgFeedback(b)),
+    onMarkSent: b => markNotified(b.id, "feedback")
+  }), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Cake, {
+      size: 15
+    })
+  }, "Aniversários próximos (30 dias)"), aniversariantes.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13
+    }
+  }, "Nenhum aniversário nos próximos 30 dias.") : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, aniversariantes.map(b => /*#__PURE__*/React.createElement("div", {
+    key: b.phone,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "9px 10px",
+      borderRadius: 9,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      fontWeight: 600
+    }
+  }, b.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted
+    }
+  }, b.daysUntil === 0 ? "é hoje!" : `em ${b.daysUntil} dia${b.daysUntil > 1 ? "s" : ""}`)), /*#__PURE__*/React.createElement("button", {
+    style: btnPrimarySm,
+    onClick: () => window.open(whatsappLink(b.phone, `Oi ${b.firstName || b.name}! Passando pra desejar um feliz aniversário 🎉 Como presente, preparamos uma condição especial pro seu próximo bronzeamento no Valério Bronze. Bora agendar?`), "_blank")
+  }, /*#__PURE__*/React.createElement(MessageCircle, {
+    size: 12,
+    style: {
+      marginRight: 4,
+      verticalAlign: -2
+    }
+  }), "Parabenizar"))))));
+}
+function MessageGroup({
+  title,
+  icon,
+  items,
+  emptyLabel,
+  onSend,
+  onMarkSent,
+  showDeadline
+}) {
+  function deadlineLabel(b) {
+    const dt = bookingDateTime(b.date, b.time);
+    dt.setHours(dt.getHours() - 3);
+    const hh = String(dt.getHours()).padStart(2, "0");
+    const mm = String(dt.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: icon
+  }, title, items.length > 0 ? ` (${items.length})` : ""), items.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13
+    }
+  }, emptyLabel) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, items.map(b => /*#__PURE__*/React.createElement("div", {
+    key: b.id,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 8,
+      padding: "9px 10px",
+      borderRadius: 9,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      fontWeight: 600
+    }
+  }, b.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      fontFamily: "'JetBrains Mono', monospace"
+    }
+  }, fmtDateFull(b.date), " · ", b.time), showDeadline && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.gold,
+      fontWeight: 600,
+      marginTop: 2
+    }
+  }, "Enviar até ", deadlineLabel(b))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...btnPrimarySm,
+      display: "flex",
+      alignItems: "center"
+    },
+    onClick: () => onSend(b)
+  }, /*#__PURE__*/React.createElement(MessageCircle, {
+    size: 12,
+    style: {
+      marginRight: 4
+    }
+  }), "Enviar"), /*#__PURE__*/React.createElement("button", {
+    title: "Marcar como enviada, sem abrir o WhatsApp",
+    style: {
+      ...iconBtnSm,
+      border: `1px solid ${COLORS.success}`,
+      width: 30,
+      height: 30
+    },
+    onClick: () => onMarkSent(b)
+  }, /*#__PURE__*/React.createElement(Check, {
+    size: 14,
+    color: COLORS.success
+  })))))));
+}
+function AdminHistorico({
+  data,
+  persist
+}) {
+  const [filter, setFilter] = useState("todos");
+  const [query, setQuery] = useState("");
+  const list = data.bookings.filter(b => filter === "todos" || b.status === filter).filter(b => !query || b.name.toLowerCase().includes(query.toLowerCase()) || b.phone.includes(query)).sort((a, b) => a.date + a.time < b.date + b.time ? 1 : -1);
+  async function removeBooking(id) {
+    await persist({
+      ...data,
+      bookings: data.bookings.filter(b => b.id !== id)
+    });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 10,
+      flexWrap: "wrap"
+    }
+  }, ["todos", "agendado", "concluido", "cancelado"].map(f => /*#__PURE__*/React.createElement("button", {
+    key: f,
+    onClick: () => setFilter(f),
+    style: {
+      padding: "6px 12px",
+      borderRadius: 8,
+      fontSize: 12,
+      fontWeight: 600,
+      border: `1px solid ${filter === f ? COLORS.bronze : COLORS.border}`,
+      background: filter === f ? COLORS.bronze : "transparent",
+      color: filter === f ? COLORS.bg : COLORS.muted,
+      textTransform: "capitalize"
+    }
+  }, f))), /*#__PURE__*/React.createElement("input", {
+    placeholder: "Buscar por nome ou telefone…",
+    value: query,
+    onChange: e => setQuery(e.target.value),
+    style: input
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, list.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13,
+      textAlign: "center",
+      padding: 20
+    }
+  }, "Nada encontrado."), list.map(b => /*#__PURE__*/React.createElement(BookingRow, {
+    key: b.id,
+    b: b,
+    right: /*#__PURE__*/React.createElement("button", {
+      title: "Excluir",
+      style: {
+        ...iconBtnSm,
+        marginLeft: 6
+      },
+      onClick: () => removeBooking(b.id)
+    }, /*#__PURE__*/React.createElement(Trash2, {
+      size: 14,
+      color: COLORS.muted
+    }))
+  }))));
+}
+function AdminFaturamento({
+  data
+}) {
+  const completed = data.bookings.filter(b => b.status === "concluido");
+  const scheduled = data.bookings.filter(b => b.status === "agendado");
+  const cancelled = data.bookings.filter(b => b.status === "cancelado");
+  function serviceCost(serviceName) {
+    const svc = data.settings.services.find(s => s.name === serviceName);
+    return svc ? svc.cost || 0 : 0;
+  }
+  const totalFaturado = completed.reduce((s, b) => s + b.price, 0);
+  const totalPrevisto = scheduled.reduce((s, b) => s + b.price, 0);
+  const totalSinaisRetidos = cancelled.reduce((s, b) => s + b.deposit, 0);
+  const totalGastos = data.expenses.reduce((s, e) => s + e.amount, 0);
+  const totalCustoInsumos = completed.reduce((s, b) => s + serviceCost(b.serviceName), 0);
+  const lucroLiquido = totalFaturado + totalSinaisRetidos - totalGastos;
+  const lucroReal = lucroLiquido - totalCustoInsumos;
+  const byPayment = PAYMENTS.map(p => {
+    const depositTotal = completed.filter(b => b.payment === p).reduce((s, b) => s + (b.deposit || 0), 0);
+    const remainingTotal = completed.filter(b => (b.paymentRemaining || b.payment) === p).reduce((s, b) => s + (b.price - (b.deposit || 0)), 0);
+    return {
+      payment: p,
+      total: depositTotal + remainingTotal,
+      count: completed.filter(b => b.payment === p || (b.paymentRemaining || b.payment) === p).length
+    };
+  });
+  const byService = data.settings.services.map(s => {
+    const count = completed.filter(b => b.serviceName === s.name).length;
+    const cost = s.cost || 0;
+    const profitEach = (s.price || 0) - cost;
+    return {
+      ...s,
+      count,
+      cost,
+      profitEach,
+      totalProfit: profitEach * count
+    };
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(StatCard, {
+    label: "Faturado (concluídos)",
+    value: money(totalFaturado),
+    color: COLORS.success,
+    icon: /*#__PURE__*/React.createElement(Wallet, {
+      size: 16
+    })
+  }), /*#__PURE__*/React.createElement(StatCard, {
+    label: "Previsto (agendados)",
+    value: money(totalPrevisto),
+    color: COLORS.gold,
+    icon: /*#__PURE__*/React.createElement(TrendingUp, {
+      size: 16
+    })
+  }), /*#__PURE__*/React.createElement(StatCard, {
+    label: "Sinais retidos (cancelados)",
+    value: money(totalSinaisRetidos),
+    color: COLORS.bronze,
+    icon: /*#__PURE__*/React.createElement(ShieldCheck, {
+      size: 16
+    })
+  }), /*#__PURE__*/React.createElement(StatCard, {
+    label: "Gastos",
+    value: money(totalGastos),
+    color: COLORS.danger,
+    icon: /*#__PURE__*/React.createElement(TrendingDown, {
+      size: 16
+    })
+  })), totalCustoInsumos > 0 && /*#__PURE__*/React.createElement(StatCard, {
+    label: "Custo de insumos (atendimentos concluídos)",
+    value: money(totalCustoInsumos),
+    color: COLORS.danger,
+    icon: /*#__PURE__*/React.createElement(TrendingDown, {
+      size: 16
+    })
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      background: `linear-gradient(135deg, ${COLORS.bgCard}, ${COLORS.bgElevated})`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.muted,
+      marginBottom: 4
+    }
+  }, "Lucro real"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 30,
+      fontWeight: 700,
+      color: lucroReal >= 0 ? COLORS.gold : COLORS.danger
+    }
+  }, money(lucroReal)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginTop: 2
+    }
+  }, "faturado + sinais retidos − gastos − custo de insumos")), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Sun, {
+      size: 15
+    })
+  }, "Lucro por modelo"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, byService.map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.id,
+    style: {
+      padding: "10px",
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13.5,
+      fontWeight: 700
+    }
+  }, s.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: COLORS.muted
+    }
+  }, s.count, " concluído", s.count !== 1 ? "s" : "")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted
+    }
+  }, money(s.price), " − ", money(s.cost), " custo = ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.gold,
+      fontWeight: 700
+    }
+  }, money(s.profitEach)), " de lucro/atendimento"), s.count > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      fontWeight: 700,
+      color: COLORS.success,
+      marginTop: 4
+    }
+  }, "Total: ", money(s.totalProfit))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.muted,
+      marginTop: 10
+    }
+  }, "Ajuste o \"custo do insumo\" de cada modelo na aba Config.")), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(CreditCard, {
+      size: 15
+    })
+  }, "Por forma de pagamento"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, byPayment.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.payment,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "8px 4px"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13.5
+    }
+  }, p.payment), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: COLORS.muted
+    }
+  }, p.count, " atendimento", p.count !== 1 ? "s" : ""), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'JetBrains Mono', monospace",
+      fontWeight: 700
+    }
+  }, money(p.total)))))));
+}
+function StatCard({
+  label,
+  value,
+  color,
+  icon
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      color,
+      marginBottom: 8
+    }
+  }, icon), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 3
+    }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 17,
+      fontWeight: 700
+    }
+  }, value));
+}
+function AdminGastos({
+  data,
+  persist
+}) {
+  const [desc, setDesc] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(toISODate(new Date()));
+  async function addExpense() {
+    if (!desc.trim() || !amount) return;
+    const expense = {
+      id: uid(),
+      date,
+      description: desc.trim(),
+      amount: parseFloat(amount)
+    };
+    await persist({
+      ...data,
+      expenses: [expense, ...data.expenses]
+    });
+    setDesc("");
+    setAmount("");
+  }
+  async function removeExpense(id) {
+    await persist({
+      ...data,
+      expenses: data.expenses.filter(e => e.id !== id)
+    });
+  }
+  const total = data.expenses.reduce((s, e) => s + e.amount, 0);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    })
+  }, "Novo gasto"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    placeholder: "Descrição (ex: creme bronzeador)",
+    value: desc,
+    onChange: e => setDesc(e.target.value),
+    style: input
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "Valor (R$)",
+    value: amount,
+    onChange: e => setAmount(e.target.value),
+    style: {
+      ...input,
+      flex: 1
+    }
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: date,
+    onChange: e => setDate(e.target.value),
+    style: {
+      ...input,
+      flex: 1
+    }
+  })), /*#__PURE__*/React.createElement("button", {
+    style: btnPrimary,
+    onClick: addExpense
+  }, "Adicionar gasto"))), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(TrendingDown, {
+      size: 15
+    })
+  }, "Gastos registrados"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'JetBrains Mono', monospace",
+      fontWeight: 700,
+      color: COLORS.danger
+    }
+  }, money(total))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 8
+    }
+  }, data.expenses.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.muted,
+      fontSize: 13
+    }
+  }, "Nenhum gasto registrado."), data.expenses.map(e => /*#__PURE__*/React.createElement("div", {
+    key: e.id,
+    className: "card-row",
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "9px 10px",
+      borderRadius: 9,
+      border: `1px solid ${COLORS.border}`
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      fontWeight: 600
+    }
+  }, e.description), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted
+    }
+  }, fmtDateFull(e.date))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'JetBrains Mono', monospace",
+      fontWeight: 700,
+      color: COLORS.danger
+    }
+  }, money(e.amount)), /*#__PURE__*/React.createElement("button", {
+    style: iconBtnSm,
+    onClick: () => removeExpense(e.id)
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 14,
+    color: COLORS.muted
+  }))))))));
+}
+function AdminConfig({
+  data,
+  persist
+}) {
+  const [settings, setSettings] = useState(data.settings);
+  function updateService(id, field, value) {
+    setSettings({
+      ...settings,
+      services: settings.services.map(s => s.id === id ? {
+        ...s,
+        [field]: value
+      } : s)
+    });
+  }
+  function addService() {
+    setSettings({
+      ...settings,
+      services: [...settings.services, {
+        id: uid(),
+        name: "Novo modelo",
+        price: 0,
+        cost: 0
+      }]
+    });
+  }
+  function removeService(id) {
+    setSettings({
+      ...settings,
+      services: settings.services.filter(s => s.id !== id)
+    });
+  }
+  async function save() {
+    await persist({
+      ...data,
+      settings: {
+        services: settings.services.map(s => ({
+          ...s,
+          price: parseFloat(s.price) || 0,
+          cost: parseFloat(s.cost) || 0,
+          name: s.name.trim() || "Modelo"
+        })),
+        depositPct: parseFloat(settings.depositPct) || 0,
+        startHour: parseInt(settings.startHour) || 8,
+        endHour: parseInt(settings.endHour) || 17,
+        sundayEndHour: parseInt(settings.sundayEndHour) || 11
+      }
+    });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Sun, {
+      size: 15
+    })
+  }, "Modelos de bronze"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginBottom: 10
+    }
+  }, "O \"custo do insumo\" é quanto de produto (creme bronzeador, descartáveis etc.) você gasta em média por atendimento desse modelo — usado pra calcular o lucro real na aba Faturamento."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, settings.services.map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.id,
+    style: {
+      display: "grid",
+      gap: 6,
+      padding: "10px",
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.name,
+    onChange: e => updateService(s.id, "name", e.target.value),
+    style: {
+      ...input,
+      flex: 2
+    },
+    placeholder: "Nome do modelo"
+  }), /*#__PURE__*/React.createElement("button", {
+    style: iconBtnSm,
+    onClick: () => removeService(s.id)
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 14,
+    color: COLORS.muted
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: COLORS.muted,
+      marginBottom: 3
+    }
+  }, "Preço cobrado"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: s.price,
+    onChange: e => updateService(s.id, "price", e.target.value),
+    style: input,
+    placeholder: "Preço"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: COLORS.muted,
+      marginBottom: 3
+    }
+  }, "Custo do insumo"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: s.cost,
+    onChange: e => updateService(s.id, "cost", e.target.value),
+    style: input,
+    placeholder: "Custo"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: COLORS.muted,
+      marginBottom: 3
+    }
+  }, "Lucro estimado"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...input,
+      display: "flex",
+      alignItems: "center",
+      color: COLORS.gold,
+      fontWeight: 700
+    }
+  }, money((parseFloat(s.price) || 0) - (parseFloat(s.cost) || 0)))))))), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...btnGhost,
+      width: "100%",
+      marginTop: 10
+    },
+    onClick: addService
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 13,
+    style: {
+      marginRight: 6,
+      verticalAlign: -2
+    }
+  }), "Adicionar modelo")), /*#__PURE__*/React.createElement("div", {
+    style: card
+  }, /*#__PURE__*/React.createElement(SectionTitle, {
+    icon: /*#__PURE__*/React.createElement(Settings, {
+      size: 15
+    })
+  }, "Regras gerais"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Percentual de sinal (%)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: settings.depositPct,
+    onChange: e => setSettings({
+      ...settings,
+      depositPct: e.target.value
+    }),
+    style: input
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Horário inicial"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "23",
+    value: settings.startHour,
+    onChange: e => setSettings({
+      ...settings,
+      startHour: e.target.value
+    }),
+    style: input
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Horário final (seg-sáb)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "23",
+    value: settings.endHour,
+    onChange: e => setSettings({
+      ...settings,
+      endHour: e.target.value
+    }),
+    style: input
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Horário final aos domingos"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "23",
+    value: settings.sundayEndHour,
+    onChange: e => setSettings({
+      ...settings,
+      sundayEndHour: e.target.value
+    }),
+    style: input
+  })), /*#__PURE__*/React.createElement("button", {
+    style: btnPrimary,
+    onClick: save
+  }, "Salvar configurações"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted,
+      marginTop: 2
+    }
+  }, "Atendimento de segunda a domingo, de 1 em 1 hora, dentro dos intervalos definidos acima."))));
+}
+function Field({
+  label,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.muted,
+      marginBottom: 5
+    }
+  }, label), children);
+}
+
+/* ---------------------------- shared style objects ---------------------------- */
+
+const card = {
+  background: COLORS.bgCard,
+  border: `1px solid ${COLORS.border}`,
+  borderRadius: 16,
+  padding: 16
+};
+const input = {
+  width: "100%",
+  padding: "10px 12px",
+  borderRadius: 9,
+  border: `1px solid ${COLORS.border}`,
+  background: COLORS.bgElevated,
+  color: COLORS.cream,
+  fontSize: 13.5,
+  outline: "none"
+};
+const errorInput = {
+  border: `1.5px solid ${COLORS.danger}`
+};
+const btnPrimary = {
+  padding: "11px 16px",
+  borderRadius: 10,
+  border: "none",
+  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.bronze})`,
+  color: COLORS.bg,
+  fontWeight: 700,
+  fontSize: 14
+};
+const btnPrimarySm = {
+  padding: "6px 10px",
+  borderRadius: 8,
+  border: "none",
+  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.bronze})`,
+  color: COLORS.bg,
+  fontWeight: 700,
+  fontSize: 12
+};
+const btnGhost = {
+  padding: "9px 14px",
+  borderRadius: 9,
+  border: `1px solid ${COLORS.border}`,
+  background: "transparent",
+  color: COLORS.cream,
+  fontWeight: 600,
+  fontSize: 13
+};
+const iconBtn = {
+  width: 34,
+  height: 34,
+  borderRadius: 9,
+  border: `1px solid ${COLORS.border}`,
+  background: COLORS.bgElevated,
+  color: COLORS.cream,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
+};
+const iconBtnSm = {
+  width: 26,
+  height: 26,
+  borderRadius: 7,
+  border: "none",
+  background: "transparent",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0
+};
+const msgBtnStyle = {
+  display: "flex",
+  alignItems: "center",
+  padding: "5px 9px",
+  borderRadius: 7,
+  border: `1px solid ${COLORS.bronzeSoft}`,
+  background: "transparent",
+  color: COLORS.gold,
+  fontSize: 11,
+  fontWeight: 600
+};</script>
+
+<script>
+  window.addEventListener("firebase-ready", function () {
+    var root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(React.createElement(App));
+  }, { once: true });
+</script>
+</body>
+</html>
