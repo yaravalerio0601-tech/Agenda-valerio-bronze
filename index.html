@@ -2514,12 +2514,35 @@ function AdminHistorico({
     }))
   }))));
 }
+function monthKey(iso) {
+  return (iso || "").slice(0, 7); // "2026-07-15" -> "2026-07"
+}
+function currentMonthKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
+function fmtMonthLabel(key) {
+  const [y, m] = key.split("-").map(Number);
+  const names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  return `${names[m - 1]} de ${y}`;
+}
+function shiftMonthKey(key, delta) {
+  const [y, m] = key.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
 function AdminFaturamento({
   data
 }) {
-  const completed = data.bookings.filter(b => b.status === "concluido");
-  const scheduled = data.bookings.filter(b => b.status === "agendado");
-  const cancelled = data.bookings.filter(b => b.status === "cancelado");
+  const [viewMonth, setViewMonth] = React.useState(currentMonthKey());
+  const isCurrentMonth = viewMonth === currentMonthKey();
+  const completedAll = data.bookings.filter(b => b.status === "concluido");
+  const scheduledAll = data.bookings.filter(b => b.status === "agendado");
+  const cancelledAll = data.bookings.filter(b => b.status === "cancelado");
+  const completed = completedAll.filter(b => monthKey(b.date) === viewMonth);
+  const scheduled = scheduledAll.filter(b => monthKey(b.date) === viewMonth);
+  const cancelled = cancelledAll.filter(b => monthKey(b.date) === viewMonth);
+  const monthExpenses = data.expenses.filter(e => monthKey(e.date) === viewMonth);
   function serviceCost(serviceName) {
     const svc = data.settings.services.find(s => s.name === serviceName);
     return svc ? svc.cost || 0 : 0;
@@ -2527,7 +2550,7 @@ function AdminFaturamento({
   const totalFaturado = completed.reduce((s, b) => s + b.price, 0);
   const totalPrevisto = scheduled.reduce((s, b) => s + b.price, 0);
   const totalSinaisRetidos = cancelled.reduce((s, b) => s + b.deposit, 0);
-  const totalGastos = data.expenses.reduce((s, e) => s + e.amount, 0);
+  const totalGastos = monthExpenses.reduce((s, e) => s + e.amount, 0);
   const totalCustoInsumos = completed.reduce((s, b) => s + serviceCost(b.serviceName), 0);
   const lucroLiquido = totalFaturado + totalSinaisRetidos - totalGastos;
   const lucroReal = lucroLiquido - totalCustoInsumos;
@@ -2558,6 +2581,56 @@ function AdminFaturamento({
       gap: 14
     }
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, -1)),
+    style: {
+      background: "none",
+      border: "none",
+      color: COLORS.gold,
+      cursor: "pointer",
+      padding: 6,
+      display: "flex"
+    }
+  }, /*#__PURE__*/React.createElement(ChevronLeft, {
+    size: 20
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 15.5,
+      fontWeight: 700
+    }
+  }, fmtMonthLabel(viewMonth)), !isCurrentMonth && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.muted,
+      marginTop: 2
+    }
+  }, "mês fechado · somente histórico")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, 1)),
+    disabled: isCurrentMonth,
+    style: {
+      background: "none",
+      border: "none",
+      color: isCurrentMonth ? COLORS.muted : COLORS.gold,
+      cursor: isCurrentMonth ? "default" : "pointer",
+      padding: 6,
+      display: "flex",
+      opacity: isCurrentMonth ? 0.4 : 1
+    }
+  }, /*#__PURE__*/React.createElement(ChevronRight, {
+    size: 20
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
