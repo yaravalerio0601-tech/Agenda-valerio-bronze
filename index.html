@@ -258,6 +258,7 @@ const DEFAULT_DATA = {
   blocked: [],
   settings: {
     depositPct: 30,
+    chargeDeposit: true,
     startHour: 8,
     endHour: 17,
     sundayEndHour: 11,
@@ -619,7 +620,7 @@ function ClientView({
     setAttemptedSubmit(true);
     if (!selectedTime || !firstName.trim() || !lastName.trim() || !phone.trim() || !service) return;
     const price = service.price;
-    const deposit = Math.round(price * (settings.depositPct / 100) * 100) / 100;
+    const deposit = settings.chargeDeposit ? Math.round(price * (settings.depositPct / 100) * 100) / 100 : 0;
     const booking = {
       id: uid(),
       date: selectedDate,
@@ -962,7 +963,7 @@ function ClientView({
       background: payment === p ? COLORS.bronze : "transparent",
       color: payment === p ? COLORS.bg : COLORS.cream
     }
-  }, p)))), /*#__PURE__*/React.createElement("div", {
+  }, p)))), settings.chargeDeposit && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "space-between",
@@ -1392,7 +1393,7 @@ function AdminAgenda({
     setMPayment(PAYMENTS[0]);
     const firstService = settings.services[0];
     setMService(firstService?.id || null);
-    const suggestedDeposit = firstService ? Math.round(firstService.price * (settings.depositPct / 100) * 100) / 100 : 0;
+    const suggestedDeposit = settings.chargeDeposit && firstService ? Math.round(firstService.price * (settings.depositPct / 100) * 100) / 100 : 0;
     setMDeposit(String(suggestedDeposit));
     setMPaymentRemaining("");
     setMEncaixe(false);
@@ -2824,6 +2825,8 @@ function AdminGastos({
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(toISODate(new Date()));
+  const [viewMonth, setViewMonth] = React.useState(currentMonthKey());
+  const isCurrentMonth = viewMonth === currentMonthKey();
   async function addExpense() {
     if (!desc.trim() || !amount) return;
     const expense = {
@@ -2845,13 +2848,64 @@ function AdminGastos({
       expenses: data.expenses.filter(e => e.id !== id)
     });
   }
-  const total = data.expenses.reduce((s, e) => s + e.amount, 0);
+  const monthExpenses = data.expenses.filter(e => monthKey(e.date) === viewMonth).sort((a, b) => a.date < b.date ? 1 : -1);
+  const total = monthExpenses.reduce((s, e) => s + e.amount, 0);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gap: 14
     }
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, -1)),
+    style: {
+      background: "none",
+      border: "none",
+      color: COLORS.gold,
+      cursor: "pointer",
+      padding: 6,
+      display: "flex"
+    }
+  }, /*#__PURE__*/React.createElement(ChevronLeft, {
+    size: 20
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 15.5,
+      fontWeight: 700
+    }
+  }, fmtMonthLabel(viewMonth)), !isCurrentMonth && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.muted,
+      marginTop: 2
+    }
+  }, "mês fechado · somente histórico")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, 1)),
+    disabled: isCurrentMonth,
+    style: {
+      background: "none",
+      border: "none",
+      color: isCurrentMonth ? COLORS.muted : COLORS.gold,
+      cursor: isCurrentMonth ? "default" : "pointer",
+      padding: 6,
+      display: "flex",
+      opacity: isCurrentMonth ? 0.4 : 1
+    }
+  }, /*#__PURE__*/React.createElement(ChevronRight, {
+    size: 20
+  }))), /*#__PURE__*/React.createElement("div", {
     style: card
   }, /*#__PURE__*/React.createElement(SectionTitle, {
     icon: /*#__PURE__*/React.createElement(Plus, {
@@ -2915,12 +2969,12 @@ function AdminGastos({
       display: "grid",
       gap: 8
     }
-  }, data.expenses.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, monthExpenses.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       color: COLORS.muted,
       fontSize: 13
     }
-  }, "Nenhum gasto registrado."), data.expenses.map(e => /*#__PURE__*/React.createElement("div", {
+  }, "Nenhum gasto registrado nesse mês."), monthExpenses.map(e => /*#__PURE__*/React.createElement("div", {
     key: e.id,
     className: "card-row",
     style: {
@@ -3003,6 +3057,7 @@ function AdminConfig({
           name: s.name.trim() || "Modelo"
         })),
         depositPct: parseFloat(settings.depositPct) || 0,
+        chargeDeposit: !!settings.chargeDeposit,
         startHour: parseInt(settings.startHour) || 8,
         endHour: parseInt(settings.endHour) || 17,
         sundayEndHour: parseInt(settings.sundayEndHour) || 11
@@ -3139,7 +3194,42 @@ function AdminConfig({
       display: "grid",
       gap: 12
     }
-  }, /*#__PURE__*/React.createElement(Field, {
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSettings({
+      ...settings,
+      chargeDeposit: !settings.chargeDeposit
+    }),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "9px 12px",
+      borderRadius: 9,
+      border: `1.5px solid ${settings.chargeDeposit ? COLORS.gold : COLORS.border}`,
+      background: settings.chargeDeposit ? COLORS.bronzeSoft : "transparent"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 18,
+      height: 18,
+      borderRadius: 5,
+      flexShrink: 0,
+      border: `1.5px solid ${settings.chargeDeposit ? COLORS.gold : COLORS.muted}`,
+      background: settings.chargeDeposit ? COLORS.gold : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, settings.chargeDeposit && /*#__PURE__*/React.createElement(Check, {
+    size: 12,
+    color: COLORS.bg
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.cream,
+      textAlign: "left"
+    }
+  }, "Cobrar sinal automaticamente das clientes que agendam sozinhas")), settings.chargeDeposit && /*#__PURE__*/React.createElement(Field, {
     label: "Percentual de sinal (%)"
   }, /*#__PURE__*/React.createElement("input", {
     type: "number",
