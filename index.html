@@ -2448,7 +2448,9 @@ function AdminHistorico({
 }) {
   const [filter, setFilter] = useState("todos");
   const [query, setQuery] = useState("");
-  const list = data.bookings.filter(b => filter === "todos" || b.status === filter).filter(b => !query || b.name.toLowerCase().includes(query.toLowerCase()) || b.phone.includes(query)).sort((a, b) => a.date + a.time < b.date + b.time ? 1 : -1);
+  const [viewMonth, setViewMonth] = React.useState(currentMonthKey());
+  const isCurrentMonth = viewMonth === currentMonthKey();
+  const list = data.bookings.filter(b => monthKey(b.date) === viewMonth).filter(b => filter === "todos" || b.status === filter).filter(b => !query || b.name.toLowerCase().includes(query.toLowerCase()) || b.phone.includes(query)).sort((a, b) => a.date + a.time < b.date + b.time ? 1 : -1);
   async function removeBooking(id) {
     await persist({
       ...data,
@@ -2461,6 +2463,56 @@ function AdminHistorico({
       gap: 14
     }
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, -1)),
+    style: {
+      background: "none",
+      border: "none",
+      color: COLORS.gold,
+      cursor: "pointer",
+      padding: 6,
+      display: "flex"
+    }
+  }, /*#__PURE__*/React.createElement(ChevronLeft, {
+    size: 20
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Fraunces', serif",
+      fontSize: 15.5,
+      fontWeight: 700
+    }
+  }, fmtMonthLabel(viewMonth)), !isCurrentMonth && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.muted,
+      marginTop: 2
+    }
+  }, "mês fechado · somente histórico")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewMonth(shiftMonthKey(viewMonth, 1)),
+    disabled: isCurrentMonth,
+    style: {
+      background: "none",
+      border: "none",
+      color: isCurrentMonth ? COLORS.muted : COLORS.gold,
+      cursor: isCurrentMonth ? "default" : "pointer",
+      padding: 6,
+      display: "flex",
+      opacity: isCurrentMonth ? 0.4 : 1
+    }
+  }, /*#__PURE__*/React.createElement(ChevronRight, {
+    size: 20
+  }))), /*#__PURE__*/React.createElement("div", {
     style: card
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2499,7 +2551,7 @@ function AdminHistorico({
       textAlign: "center",
       padding: 20
     }
-  }, "Nada encontrado."), list.map(b => /*#__PURE__*/React.createElement(BookingRow, {
+  }, "Nada encontrado nesse mês."), list.map(b => /*#__PURE__*/React.createElement(BookingRow, {
     key: b.id,
     b: b,
     right: /*#__PURE__*/React.createElement("button", {
