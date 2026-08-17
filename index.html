@@ -165,6 +165,18 @@ function ChevronRight(props) {
     children: [P("M9 18l6-6-6-6")]
   });
 }
+function ChevronUp(props) {
+  return Icon({
+    ...props,
+    children: [P("M18 15l-6-6-6 6")]
+  });
+}
+function ChevronDown(props) {
+  return Icon({
+    ...props,
+    children: [P("M6 9l6 6 6-6")]
+  });
+}
 function Check(props) {
   return Icon({
     ...props,
@@ -3098,6 +3110,19 @@ function AdminConfig({
       services: settings.services.filter(s => s.id !== id)
     });
   }
+  function moveService(id, direction) {
+    setSettings(prev => {
+      const list = [...prev.services];
+      const i = list.findIndex(s => s.id === id);
+      const j = i + direction;
+      if (i < 0 || j < 0 || j >= list.length) return prev;
+      [list[i], list[j]] = [list[j], list[i]];
+      return {
+        ...prev,
+        services: list
+      };
+    });
+  }
   async function save() {
     await persist({
       ...data,
@@ -3138,7 +3163,7 @@ function AdminConfig({
       display: "grid",
       gap: 10
     }
-  }, settings.services.map(s => /*#__PURE__*/React.createElement("div", {
+  }, settings.services.map((s, idx) => /*#__PURE__*/React.createElement("div", {
     key: s.id,
     style: {
       display: "grid",
@@ -3162,6 +3187,28 @@ function AdminConfig({
     },
     placeholder: "Nome do modelo"
   }), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...iconBtnSm,
+      opacity: idx === 0 ? 0.35 : 1
+    },
+    disabled: idx === 0,
+    title: "Mover para cima",
+    onClick: () => moveService(s.id, -1)
+  }, /*#__PURE__*/React.createElement(ChevronUp, {
+    size: 14,
+    color: COLORS.muted
+  })), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...iconBtnSm,
+      opacity: idx === settings.services.length - 1 ? 0.35 : 1
+    },
+    disabled: idx === settings.services.length - 1,
+    title: "Mover para baixo",
+    onClick: () => moveService(s.id, 1)
+  }, /*#__PURE__*/React.createElement(ChevronDown, {
+    size: 14,
+    color: COLORS.muted
+  })), /*#__PURE__*/React.createElement("button", {
     style: iconBtnSm,
     onClick: () => removeService(s.id)
   }, /*#__PURE__*/React.createElement(Trash2, {
