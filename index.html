@@ -1363,6 +1363,34 @@ function AdminAgenda({
   const [concludingId, setConcludingId] = useState(null);
   const [mPaymentRemaining, setMPaymentRemaining] = useState("");
   const [mDeposit, setMDeposit] = useState("0");
+  const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+  const knownClients = React.useMemo(() => {
+    const map = new Map();
+    for (const b of data.bookings) {
+      const phoneKey = (b.phone || "").replace(/\D/g, "");
+      if (!phoneKey) continue;
+      const existing = map.get(phoneKey);
+      if (!existing || b.createdAt > existing.createdAt) {
+        map.set(phoneKey, {
+          name: b.name,
+          phone: b.phone,
+          birthDate: b.birthDate || null,
+          createdAt: b.createdAt || ""
+        });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  }, [data.bookings]);
+  const clientMatches = React.useMemo(() => {
+    const q = mPhone.replace(/\D/g, "") || mName.trim().toLowerCase();
+    if (!q || q.length < 2) return [];
+    return knownClients.filter(c => c.phone.replace(/\D/g, "").includes(mPhone.replace(/\D/g, "")) && mPhone.replace(/\D/g, "").length >= 2 || c.name.toLowerCase().includes(mName.trim().toLowerCase()) && mName.trim().length >= 2).slice(0, 6);
+  }, [knownClients, mPhone, mName]);
+  function pickClient(c) {
+    setMName(c.name);
+    setMPhone(c.phone);
+    setShowClientSuggestions(false);
+  }
   const [mEncaixe, setMEncaixe] = useState(false);
   const [customTime, setCustomTime] = useState("07:00");
   const baseHours = hoursForDate(selectedDate, settings);
@@ -1897,17 +1925,107 @@ function AdminAgenda({
       value: h,
       disabled: taken
     }, h, taken ? " (ocupado)" : "");
-  }))), /*#__PURE__*/React.createElement("input", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
     placeholder: "Nome do cliente",
     value: mName,
-    onChange: e => setMName(e.target.value),
+    onChange: e => {
+      setMName(e.target.value);
+      setShowClientSuggestions(true);
+    },
+    onFocus: () => setShowClientSuggestions(true),
+    onBlur: () => setTimeout(() => setShowClientSuggestions(false), 150),
     style: input
-  }), /*#__PURE__*/React.createElement("input", {
+  }), showClientSuggestions && clientMatches.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: "calc(100% + 4px)",
+      left: 0,
+      right: 0,
+      zIndex: 20,
+      background: COLORS.bgElevated,
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 9,
+      overflow: "hidden"
+    }
+  }, clientMatches.map((c, i) => /*#__PURE__*/React.createElement("button", {
+    key: c.phone + i,
+    onMouseDown: () => pickClient(c),
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      textAlign: "left",
+      padding: "8px 12px",
+      background: "transparent",
+      border: "none",
+      borderBottom: i < clientMatches.length - 1 ? `1px solid ${COLORS.border}` : "none"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: COLORS.cream
+    }
+  }, c.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted
+    }
+  }, c.phone))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
     placeholder: "Telefone (opcional)",
     value: mPhone,
-    onChange: e => setMPhone(e.target.value),
+    onChange: e => {
+      setMPhone(e.target.value);
+      setShowClientSuggestions(true);
+    },
+    onFocus: () => setShowClientSuggestions(true),
+    onBlur: () => setTimeout(() => setShowClientSuggestions(false), 150),
     style: input
-  }), /*#__PURE__*/React.createElement("div", {
+  }), showClientSuggestions && clientMatches.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: "calc(100% + 4px)",
+      left: 0,
+      right: 0,
+      zIndex: 20,
+      background: COLORS.bgElevated,
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: 9,
+      overflow: "hidden"
+    }
+  }, clientMatches.map((c, i) => /*#__PURE__*/React.createElement("button", {
+    key: c.phone + i,
+    onMouseDown: () => pickClient(c),
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      textAlign: "left",
+      padding: "8px 12px",
+      background: "transparent",
+      border: "none",
+      borderBottom: i < clientMatches.length - 1 ? `1px solid ${COLORS.border}` : "none"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: COLORS.cream
+    }
+  }, c.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.muted
+    }
+  }, c.phone))))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8
